@@ -427,7 +427,7 @@ else
 endif
 
 # Base class for panels.
-class Panel
+abstract class Panel
     var bufname = "invalid"
 
     def SetFocus()
@@ -482,9 +482,15 @@ endclass
 
 # tree node class
 class Node
-    var seq = -1
-    var time = -1
-    public var p: list<Node>
+    const seq = -1
+    const time = -1
+    var p: list<Node>
+    def Clear()
+        this.p = null_list
+    enddef
+    def Add(newnode: Node)
+        this.p->add(newnode)
+    enddef
 endclass
 
 class Undotree extends Panel
@@ -494,7 +500,7 @@ class Undotree extends Panel
     enddef
 
     # Increase to make it unique.
-    public var width = g:undotree_SplitWidth
+    var width = g:undotree_SplitWidth
     var opendiff = g:undotree_DiffAutoOpen
     var diffmark = -1 # Marker for the diff view
     var targetid: string
@@ -539,7 +545,7 @@ class Undotree extends Panel
             au BufEnter <buffer> ExitIfLast()
             au BufEnter,BufLeave <buffer> {
                 if exists('t:undotree')
-                    t:undotree.width = winwidth(winnr())
+                    t:undotree.SetWidth(winwidth(winnr()))
                 endif
             }
             au WinClosed <buffer> {
@@ -960,6 +966,9 @@ class Undotree extends Panel
         return lineNr
     enddef
 
+    def SetWidth(width: number)
+        this.width = width
+    enddef
     # <0 if index is invalid. e.g. current line is in help text.
     def Screen2Index(line: number): number
         var index_padding = 1
@@ -1087,7 +1096,7 @@ class Undotree extends Panel
             if has_key(i, 'save')
                 this.seq_saved[i.save] = i.seq
             endif
-            extend(curnode.p, [newnode])
+            curnode.Add(newnode)
             curnode = newnode
         endfor
     enddef
@@ -1253,7 +1262,7 @@ class Undotree extends Panel
                 if len(node.p) > 1 # insert p node
                     slots[index] = node.p
                 endif
-                node.p = [] # cut reference.
+                node.Clear() # cut reference.
             endif
             if type(node) == v:t_list
                 newmeta = Node.new() # invalid node.
