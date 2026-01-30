@@ -745,14 +745,14 @@ class Undotree extends Panel
     # May fail due to target window closed.
     def SetTargetFocus(): bool
         for winnr in range(1, winnr('$')) # winnr starts from 1
-            if getwinvar(winnr, 'undotree_id') == this.targetid
+            if winnr->getwinvar('undotree_id') == this.targetid
                 if winnr() != winnr
-                    Exec_silent("norm! " .. winnr .. "\<c-w>\<c-w>")
-                    return 1
+                    Exec_silent($":{winnr}wincmd \<C-W>")
+                    return true
                 endif
             endif
         endfor
-        return 0
+        return false
     enddef
 
     def Toggle()
@@ -867,12 +867,12 @@ class Undotree extends Panel
             return
         endif
         # let the user disable undotree for chosen buftypes
-        if index(g:undotree_DisabledBuftypes, &buftype) != -1
+        if g:undotree_DisabledBuftypes->index(&buftype) != -1
             Log("undotree.Update() disabled buftype")
             return
         endif
         # let the user disable undotree for chosen filetypes
-        if index(g:undotree_DisabledFiletypes, &filetype) != -1
+        if g:undotree_DisabledFiletypes->index(&filetype) != -1
             Log("undotree.Update() disabled filetype")
             return
         endif
@@ -935,23 +935,23 @@ class Undotree extends Panel
 
     def AppendHelp()
         if this.showHelp
-            append(0, '') # empty line
+            ""->append(0) # empty line
             for i in keymap
-                append(0, '# ' .. i[1] .. ' : ' .. i[2])
+                $"# {i[1]} : {i[2]}"->append(0)
             endfor
-            append(0, helpmore)
+            helpmore->append(0)
         else
             if g:undotree_HelpLine
-                append(0, '')
+                ""->append(0)
             endif
-            append(0, helpless)
+            helpless->append(0)
         endif
     enddef
 
     def Index2Screen(index: number): number
         # index starts from zero
-        var index_padding = 1
-        var empty_line = 1
+        const index_padding = 1
+        const empty_line = 1
         var lineNr = index + index_padding + empty_line
         # calculate line number according to the help text.
         # index starts from zero and lineNr starts from 1
@@ -994,7 +994,7 @@ class Undotree extends Panel
         setlocal modifiable
         # Delete text into blackhole register.
         Exec(':1,$ d _')
-        append(0, this.asciitree)
+        this.asciitree->append(0)
 
         this.AppendHelp()
 
@@ -1020,34 +1020,32 @@ class Undotree extends Panel
         # reset bak seq lines.
         if this.seq_cur_bak != -1
             var index = this.seq2index[this.seq_cur_bak]
-            setline(this.Index2Screen(index), this.asciitree[index])
+            this.asciitree[index]->setline(this.Index2Screen(index))
         endif
         if this.seq_curhead_bak != -1
             var index = this.seq2index[this.seq_curhead_bak]
-            setline(this.Index2Screen(index), this.asciitree[index])
+            this.asciitree[index]->setline(this.Index2Screen(index))
         endif
         if this.seq_newhead_bak != -1
             var index = this.seq2index[this.seq_newhead_bak]
-            setline(this.Index2Screen(index), this.asciitree[index])
+            this.asciitree[index]->setline(this.Index2Screen(index))
         endif
         # mark save seqs
         for i in keys(this.seq_saved)
-            var index = this.seq2index[this.seq_saved[i]]
-            var lineNr = this.Index2Screen(index)
-            setline(lineNr, substitute(this.asciitree[index],
-                ' \d\+  \zs \ze', 's', ''))
+            const index = this.seq2index[this.seq_saved[i]]
+            const lineNr = this.Index2Screen(index)
+            this.asciitree[index]->substitute(' \d\+  \zs \ze', 's', '')->setline(lineNr)
         endfor
         const max_saved_num = max(keys(this.seq_saved)) # return 0 (number) if empty
         if type(max_saved_num) != v:t_number
             var lineNr = this.Index2Screen(this.seq2index[this.seq_saved[max_saved_num]])
-            setline(lineNr, substitute(getline(lineNr), 's', 'S', ''))
+            getline(lineNr)->substitute('s', 'S', '')->setline(lineNr)
         endif
         # mark new seqs.
         if this.seq_cur != -1
             var index = this.seq2index[this.seq_cur]
             var lineNr = this.Index2Screen(index)
-            setline(lineNr, substitute(getline(lineNr),
-                '\zs \(\d\+\) \ze [sS ] ', '>\1<', ''))
+            getline(lineNr)->substitute('\zs \(\d\+\) \ze [sS ] ', '>\1<', '')->setline(lineNr)
             if move_cursor
                 # move cursor to that line.
                 Exec("normal! " .. lineNr .. "G")
@@ -1056,27 +1054,23 @@ class Undotree extends Panel
         if this.seq_curhead != -1
             var index = this.seq2index[this.seq_curhead]
             var lineNr = this.Index2Screen(index)
-            setline(lineNr, substitute(getline(lineNr),
-                '\zs \(\d\+\) \ze [sS ] ', '{\1}', ''))
+            getline(lineNr)->substitute('\zs \(\d\+\) \ze [sS ] ', '{\1}', '')->setline(lineNr)
         endif
         if this.seq_newhead != -1
             var index = this.seq2index[this.seq_newhead]
             var lineNr = this.Index2Screen(index)
-            setline(lineNr, substitute(getline(lineNr),
-                '\zs \(\d\+\) \ze [sS ] ', '[\1]', ''))
+            getline(lineNr)->substitute('\zs \(\d\+\) \ze [sS ] ', '[\1]', '')->setline(lineNr)
         endif
         # mark diff marker
         if this.diffmark != -1
             var index = this.seq2index[this.diffmark]
             var lineNr = this.Index2Screen(index)
-            setline(lineNr, substitute(getline(lineNr),
-                '\zs \(\d\+\) \ze [sS ]', '=\1=', ''))
+            getline(lineNr)->substitute('\zs \(\d\+\) \ze [sS ]', '=\1=', '')->setline(lineNr)
         endif
         setlocal nomodifiable
     enddef
 
     def _parseNode(in: list<dict<any>>, out: Node)
-        # type(in) == type([]) && type(out) == type({})
         if empty(in) # empty
             return
         endif
@@ -1180,8 +1174,8 @@ class Undotree extends Panel
         var slots: list<any> = [tree]
         var out: list<string>
         var outmeta: list<Node>
-        var seq2index = {}
-        while slots != []
+        var seq2index: dict<number>
+        while !empty(slots)
             # find next node
             var foundx = 0 # 1 if x element is found.
             var index = 0 # Next element to be print.
@@ -1239,7 +1233,7 @@ class Undotree extends Panel
                         endif
                     endfor
                 endif
-                remove(slots, index)
+                slots->remove(index)
             endif
             if type(node) == v:t_object
                 newmeta = node
@@ -1277,28 +1271,28 @@ class Undotree extends Panel
                         newline = newline .. g:undotree_TreeSplitShape .. " "
                     endif
                 endfor
-                remove(slots, index)
+                slots->remove(index)
                 if len(node) == 2
                     if node[0].seq > node[1].seq
-                        insert(slots, node[1], index)
-                        insert(slots, node[0], index)
+                        slots->insert(node[1], index)
+                        slots->insert(node[0], index)
                     else
-                        insert(slots, node[0], index)
-                        insert(slots, node[1], index)
+                        slots->insert(node[0], index)
+                        slots->insert(node[1], index)
                     endif
                 endif
                 # split P to E+P if elements in p > 2
                 if len(node) > 2
-                    remove(node, index(node, minnode))
-                    insert(slots, minnode, index)
-                    insert(slots, node, index)
+                    node->remove(node->index(minnode))
+                    slots->insert(minnode, index)
+                    slots->insert(node, index)
                 endif
             endif
             node = null_object
             if newline != onespace
-                newline = substitute(newline, '\s*$', '', 'g') # remove trailing space.
-                insert(out, newline, 0)
-                insert(outmeta, newmeta, 0)
+                newline = newline->substitute('\s*$', '', 'g') # remove trailing space.
+                out->insert(newline, 0)
+                outmeta->insert(newmeta, 0)
             endif
         endwhile
         this.asciitree = out
@@ -1314,7 +1308,7 @@ endclass
 
 # diff panel
 class DiffPanel extends Panel
-    var cache = {}
+    var cache: dict<list<string>>
     var changes = {add: 0, del: 0}
     var diffexecutable: number
 
@@ -1323,7 +1317,7 @@ class DiffPanel extends Panel
         this.diffexecutable = executable(g:undotree_DiffCommand)
         if !this.diffexecutable
             # If the command contains parameters, strip out the executable itthis
-            var cmd = matchstr(g:undotree_DiffCommand .. ' ', '.\{-}\ze\s.*')
+            const cmd = g:undotree_DiffCommand .. ' '->matchstr('.\{-}\ze\s.*')
             this.diffexecutable = executable(cmd)
             if !this.diffexecutable
                 echoerr '"' .. cmd .. '" is not executable.'
@@ -1365,42 +1359,42 @@ class DiffPanel extends Panel
                 # remember and restore cursor and window position.
                 var savedview = winsaveview()
 
-                var new = []
-                var old = []
+                var new: list<string>
+                var old: list<string>
                 var diff_dist = 1
 
                 if diffmark != -1
                     diff_dist = seq - diffmark
                     if diff_dist > 0
-                        new = getbufline(targetBufnr, 1, '$')
+                        new = targetBufnr->getbufline(1, '$')
                         execute 'silent earlier ' .. diff_dist
-                        old = getbufline(targetBufnr, 1, '$')
+                        old = targetBufnr->getbufline(1, '$')
                         execute 'silent later ' .. diff_dist
                     else
-                        old = getbufline(targetBufnr, 1, '$')
+                        old = targetBufnr->getbufline(1, '$')
                         execute 'silent later ' .. (-diff_dist)
-                        new = getbufline(targetBufnr, 1, '$')
+                        new = targetBufnr->getbufline(1, '$')
                         execute 'silent earlier ' .. (-diff_dist)
                     endif
                 else
-                    new = getbufline(targetBufnr, 1, '$')
+                    new = targetBufnr->getbufline(1, '$')
                     silent undo
-                    old = getbufline(targetBufnr, 1, '$')
+                    old = targetBufnr->getbufline(1, '$')
                     silent redo
                 endif
 
                 winrestview(savedview)
 
                 # diff files.
-                var tempfile1 = tempname()
-                var tempfile2 = tempname()
-                if writefile(old, tempfile1) == -1
+                const tempfile1 = tempname()
+                const tempfile2 = tempname()
+                if old->writefile(tempfile1) == -1
                     echoerr "Can not write to temp file:" .. tempfile1
                 endif
-                if writefile(new, tempfile2) == -1
+                if new->writefile(tempfile2) == -1
                     echoerr "Can not write to temp file:" .. tempfile2
                 endif
-                diffresult = split(system(g:undotree_DiffCommand .. ' ' .. tempfile1 .. ' ' .. tempfile2), "\n")
+                diffresult = system($'{g:undotree_DiffCommand} {tempfile1} {tempfile2}')->split("\n")
                 Log("diffresult: " .. string(diffresult))
                 if delete(tempfile1) != 0
                     echoerr "Can not delete temp file:" .. tempfile1
@@ -1421,15 +1415,15 @@ class DiffPanel extends Panel
         setlocal modifiable
         Exec(':1,$ d _')
 
-        append(0, diffresult)
+        diffresult->append(0)
         if diffmark == -1 || seq == diffmark
-            append(0, '+ seq: ' .. seq .. ' +')
+            $'+ seq: {seq} +'->append(0)
         elseif seq > diffmark
-            append(0, '+ seq: ' .. seq .. ' +')
-            append(0, '- seq: ' .. diffmark .. ' -')
+            $'+ seq: {seq} +'->append(0)
+            $'- seq: {diffmark} -'->append(0)
         else
-            append(0, '+ seq: ' .. diffmark .. ' +')
-            append(0, '- seq: ' .. seq .. ' -')
+            $'+ seq: {diffmark} +'->append(0)
+            $'- seq: {seq} -'->append(0)
         endif
 
         # remove the last empty line
@@ -1473,10 +1467,10 @@ class DiffPanel extends Panel
         var lastLine = line('$')
         var matchwhat: string
         for line in diffresult
-            var matchnum = matchstr(line, '^[0-9, \, ]*[acd]\zs\d*\ze')
+            var matchnum = line->matchstr('^[0-9, \, ]*[acd]\zs\d*\ze')
             if !empty(matchnum)
                 lineNr = str2nr(matchnum)
-                matchwhat = matchstr(line, '^[0-9, \, ]*\zs[acd]\ze\d*')
+                matchwhat = line->matchstr('^[0-9, \, ]*\zs[acd]\ze\d*')
                 if matchwhat ==# 'd'
                     if g:undotree_HighlightChangedWithSign
                         # Normally, for a 'delete' change, the line number we have is always 1 less than the line we
@@ -1493,11 +1487,11 @@ class DiffPanel extends Panel
                 endif
                 continue
             endif
-            if matchstr(line, '^<.*$') != ''
+            if line->matchstr('^<.*$') != ''
                 this.changes.del += 1
             endif
 
-            var matchtext = matchstr(line, '^>\zs .*$')
+            var matchtext = line->matchstr('^>\zs .*$')
             if empty(matchtext)
                 continue
             endif
@@ -1505,9 +1499,11 @@ class DiffPanel extends Panel
             this.changes.add += 1
             if g:undotree_HighlightChangedText
                 if matchtext != ' '
-                    matchtext = '\%' .. lineNr .. 'l\V' .. escape(matchtext[1 : ], '"\') # remove beginning space.
-                    Log("matchadd(" .. matchwhat .. ") ->  " .. matchtext)
-                    add(w:undotree_diffmatches, matchadd((matchwhat ==# 'a' ? g:undotree_HighlightSyntaxAdd : g:undotree_HighlightSyntaxChange), matchtext))
+                    matchtext = $'\%{lineNr}l\V{matchtext[1 : ]->escape('"\')}' # remove beginning space.
+                    Log($"matchadd({matchwhat}) ->  {matchtext}")
+                    w:undotree_diffmatches->add((matchwhat ==# 'a'
+                        ? g:undotree_HighlightSyntaxAdd
+                        : g:undotree_HighlightSyntaxChange)->matchadd(matchtext))
                 endif
             endif
 
@@ -1532,7 +1528,7 @@ class DiffPanel extends Panel
             add = this.changes.add
             del = this.changes.del
         endif
-        return string(sum) .. ' ' .. repeat('+', add) .. repeat('-', del)
+        return string(sum) .. ' ' .. '+'->repeat(add) .. '-'->repeat(del)
     enddef
 
     def Toggle()
@@ -1763,7 +1759,7 @@ export def UndotreePersistUndo(goSetUndofile: bool)
     Log("UndotreePersistUndo(" .. goSetUndofile .. ")")
     if ! &undofile
         if !isdirectory(g:undotree_UndoDir)
-            mkdir(g:undotree_UndoDir, 'p', 0700)
+            g:undotree_UndoDir->mkdir('p', 0700)
             Log(" > [Dir " .. g:undotree_UndoDir .. "] created.")
         endif
         exe "set undodir=" .. fnameescape(g:undotree_UndoDir)
