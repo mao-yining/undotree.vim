@@ -244,7 +244,6 @@ else
     timeOriginal = 'Original'
 endif
 
-#=================================================
 # Help text
 var helpmore: list<string> = [
     '#    ===== Marks ===== ',
@@ -310,7 +309,6 @@ exe $'sign define UndotreeDelEnd text={g:undotree_SignDeletedEnd} texthl={g:undo
 # how many we have placed (so we can remove them all again), this is ok
 var signId = 2123654789
 
-#=================================================
 # Get formatted time
 def GetTime(time: number): string
     if time == 0
@@ -428,7 +426,6 @@ else
     ObserveOptions()
 endif
 
-#=================================================
 # Base class for panels.
 class Panel
     var bufname = "invalid"
@@ -466,7 +463,6 @@ class Panel
     enddef
 endclass
 
-#=================================================
 # undotree panel class.
 # extended from panel.
 #
@@ -494,7 +490,7 @@ endclass
 class Undotree extends Panel
 
     def new()
-    this.bufname = "undotree_" .. GetUniqueID()
+        this.bufname = "undotree_" .. GetUniqueID()
     enddef
 
     # Increase to make it unique.
@@ -541,10 +537,22 @@ class Undotree extends Panel
         augroup Undotree_Main
             au!
             au BufEnter <buffer> ExitIfLast()
-            au BufEnter,BufLeave <buffer> if exists('t:undotree') | t:undotree.width = winwidth(winnr()) | endif
-            au BufWinLeave <buffer> if exists('t:diffpanel') |
-                        \t:diffpanel.Hide() | endif
-        augroup end
+            au BufEnter,BufLeave <buffer> {
+                if exists('t:undotree')
+                    t:undotree.width = winwidth(winnr())
+                endif
+            }
+            au WinClosed <buffer> {
+                if exists('t:undotree')
+                    t:undotree.ActionClose()
+                endif
+            }
+            au BufWinLeave <buffer> {
+                if exists('t:diffpanel')
+                    t:diffpanel.Hide()
+                endif
+            }
+        augroup END
     enddef
 
     def Action(action: string)
@@ -825,8 +833,6 @@ class Undotree extends Panel
         endif
         setfiletype undotree
 
-        # Make :q ActionClose
-        cabbrev <silent><buffer> q <Cmd>t:undotree.ActionClose()<CR>
         this.BindKey()
         this.BindAu()
 
@@ -888,9 +894,9 @@ class Undotree extends Panel
                     this.rawtree = newrawtree
                     this.ConvertInput(0) # only update seqs.
                     if (this.seq_cur == this.seq_cur_bak) &&
-                                (this.seq_curhead == this.seq_curhead_bak) &&
-                                (this.seq_newhead == this.seq_newhead_bak) &&
-                                (this.save_last == this.save_last_bak)
+                            (this.seq_curhead == this.seq_curhead_bak) &&
+                            (this.seq_newhead == this.seq_newhead_bak) &&
+                            (this.save_last == this.save_last_bak)
                         return
                     endif
                     this.SetFocus()
@@ -994,13 +1000,13 @@ class Undotree extends Panel
 
     def MarkSeqs(move_cursor: bool)
         Log("bak(cur, curhead, newhead): " ..
-                    this.seq_cur_bak .. ' ' ..
-                    this.seq_curhead_bak .. ' ' ..
-                    this.seq_newhead_bak)
+            this.seq_cur_bak .. ' ' ..
+            this.seq_curhead_bak .. ' ' ..
+            this.seq_newhead_bak)
         Log("(cur, curhead, newhead): " ..
-                    this.seq_cur .. ' ' ..
-                    this.seq_curhead .. ' ' ..
-                    this.seq_newhead)
+            this.seq_cur .. ' ' ..
+            this.seq_curhead .. ' ' ..
+            this.seq_newhead)
         setlocal modifiable
         # reset bak seq lines.
         if this.seq_cur_bak != -1
@@ -1020,7 +1026,7 @@ class Undotree extends Panel
             var index = this.seq2index[this.seq_saved[i]]
             var lineNr = this.Index2Screen(index)
             setline(lineNr, substitute(this.asciitree[index],
-                        ' \d\+  \zs \ze', 's', ''))
+                ' \d\+  \zs \ze', 's', ''))
         endfor
         const max_saved_num = max(keys(this.seq_saved)) # return 0 (number) if empty
         if type(max_saved_num) != v:t_number
@@ -1042,20 +1048,20 @@ class Undotree extends Panel
             var index = this.seq2index[this.seq_curhead]
             var lineNr = this.Index2Screen(index)
             setline(lineNr, substitute(getline(lineNr),
-                        '\zs \(\d\+\) \ze [sS ] ', '{\1}', ''))
+                '\zs \(\d\+\) \ze [sS ] ', '{\1}', ''))
         endif
         if this.seq_newhead != -1
             var index = this.seq2index[this.seq_newhead]
             var lineNr = this.Index2Screen(index)
             setline(lineNr, substitute(getline(lineNr),
-                        '\zs \(\d\+\) \ze [sS ] ', '[\1]', ''))
+                '\zs \(\d\+\) \ze [sS ] ', '[\1]', ''))
         endif
         # mark diff marker
         if this.diffmark != -1
             var index = this.seq2index[this.diffmark]
             var lineNr = this.Index2Screen(index)
             setline(lineNr, substitute(getline(lineNr),
-                         '\zs \(\d\+\) \ze [sS ]', '=\1=', ''))
+                '\zs \(\d\+\) \ze [sS ]', '=\1=', ''))
         endif
         setlocal nomodifiable
     enddef
@@ -1124,7 +1130,6 @@ class Undotree extends Panel
         endif
     enddef
 
-    #=================================================
     # Ascii undo tree generator
     #
     # Example:
@@ -1298,8 +1303,7 @@ class Undotree extends Panel
     enddef
 endclass
 
-#=================================================
-#diff panel
+# diff panel
 class DiffPanel extends Panel
     var cache = {}
     var changes = {add: 0, del: 0}
@@ -1336,7 +1340,7 @@ class DiffPanel extends Panel
                 var targetWinnr = -1
                 for winnr in range(1, winnr('$')) # winnr starts from 1
                     if (getwinvar(winnr, 'undotree_id') == targetid)
-                                && winbufnr(winnr) == targetBufnr
+                            && winbufnr(winnr) == targetBufnr
                         targetWinnr = winnr
                     endif
                 endfor
@@ -1635,7 +1639,6 @@ class DiffPanel extends Panel
     enddef
 endclass
 
-#=================================================
 # It will set the target of undotree window to the current editing buffer.
 def UndotreeAction(action: string)
     Log("UndotreeAction()")
@@ -1664,7 +1667,6 @@ def ExitIfLast()
     endif
 enddef
 
-#=================================================
 # User command functions
 #called outside undotree window
 export def UndotreeUpdate()
