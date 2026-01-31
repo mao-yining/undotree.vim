@@ -45,14 +45,14 @@ Using Vim's built-in package manager:
 ```sh
 mkdir -p ~/.vim/pack/mine/start
 cd ~/.vim/pack/mine/start
-git clone https://github.com/mao-yining/undotree.vim.git
+git clone https://github.com/mao-yining/undotree.vim.git undotree
 vim -u NONE -c "helptags undotree/doc" -c q
 ```
 
 Use whatever plug-in manager to pull the master branch. I've included 2 examples of the most used:
 
-- *Vundle:* `Plugin 'mao-yining/undotree'`
-- *Vim-Plug:* `Plug 'mao-yining/undotree'`
+- *Vundle:* `Plugin 'mao-yining/undotree.vim'`
+- *Vim-Plug:* `Plug 'mao-yining/undotree.vim'`
 
 And install them with the following:
 
