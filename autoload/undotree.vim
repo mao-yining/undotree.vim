@@ -429,7 +429,33 @@ endif
 # Base class for panels.
 abstract class Panel
     var bufname = "invalid"
+    var bufnr: number
 
+    def InitBuf(cursorline: bool, statusline: string, filetype: string)
+        if !bufexists(this.bufname)
+            this.bufnr = bufadd(this.bufname)
+            setbufvar(this.bufnr, "isUndotreeBuffer", true)
+            setbufvar(this.bufnr, "&winfixwidth", true)
+            setbufvar(this.bufnr, "&winfixheight", true)
+            setbufvar(this.bufnr, "&swapfile", false)
+            setbufvar(this.bufnr, "&buftype", 'nofile')
+            setbufvar(this.bufnr, "&bufhidden", 'hide')
+            setbufvar(this.bufnr, "&wrap", false)
+            setbufvar(this.bufnr, "&list", false)
+            setbufvar(this.bufnr, "&buflisted", false)
+            setbufvar(this.bufnr, "&spell", false)
+            setbufvar(this.bufnr, "&number", false)
+            setbufvar(this.bufnr, "&relativenumber", false)
+            setbufvar(this.bufnr, "&foldcolumn", 0)
+            setbufvar(this.bufnr, "&foldenable", false)
+            setbufvar(this.bufnr, "&modifiable", false)
+            setbufvar(this.bufnr, "&cursorline", cursorline)
+            if g:undotree_StatusLine
+                setbufvar(this.bufnr, "&statusline", statusline)
+            endif
+            setbufvar(this.bufnr, "&filetype", filetype)
+        endif
+    enddef
     def SetFocus()
         var winnr = bufwinnr(this.bufname)
         # already focused.
@@ -801,6 +827,8 @@ class Undotree extends Panel
 
         this.targetid = w:undotree_id
 
+        this.InitBuf(g:undotree_CursorLine, '%!t:undotree.GetStatusLine()', 'undotree')
+
         # Create undotree window.
         var cmd: string
         if exists("g:undotree_CustomUndotreeCmd")
@@ -812,32 +840,6 @@ class Undotree extends Panel
         endif
         Exec("silent keepalt " .. cmd)
         this.SetFocus()
-
-        # We need a way to tell if the buffer is belong to undotree,
-        # bufname() is not always reliable.
-        b:isUndotreeBuffer = 1
-
-        setlocal winfixwidth
-        setlocal noswapfile
-        setlocal buftype=nofile
-        setlocal bufhidden=delete
-        setlocal nowrap
-        setlocal nolist
-        setlocal foldcolumn=0
-        setlocal nobuflisted
-        setlocal nospell
-        setlocal nonumber
-        setlocal norelativenumber
-        if g:undotree_CursorLine
-            setlocal cursorline
-        else
-            setlocal nocursorline
-        endif
-        setlocal nomodifiable
-        if g:undotree_StatusLine
-            setlocal statusline=%!t:undotree.GetStatusLine()
-        endif
-        setfiletype undotree
 
         this.BindKey()
         this.BindAu()
@@ -1550,6 +1552,8 @@ class DiffPanel extends Panel
         # remember and restore cursor and window position.
         var savedview = winsaveview()
 
+        this.InitBuf(false, '%!t:diffpanel.GetStatusLine()', 'diff')
+
         const ei_bak = &eventignore
         set eventignore=all
 
@@ -1563,31 +1567,7 @@ class DiffPanel extends Panel
         endif
         Exec_silent(cmd)
 
-        b:isUndotreeBuffer = 1
-
-        setlocal winfixwidth
-        setlocal winfixheight
-        setlocal noswapfile
-        setlocal buftype=nofile
-        setlocal bufhidden=delete
-        setlocal nowrap
-        setlocal nolist
-        setlocal nobuflisted
-        setlocal nospell
-        setlocal nonumber
-        setlocal norelativenumber
-        setlocal nocursorline
-        setlocal nomodifiable
-        if g:undotree_StatusLine
-            setlocal statusline=%!t:diffpanel.GetStatusLine()
-        endif
-
         &eventignore = ei_bak
-
-        # syntax need filetype autocommand
-        setfiletype diff
-        setlocal foldcolumn=0
-        setlocal nofoldenable
 
         this.BindAu()
         t:undotree.SetFocus()
