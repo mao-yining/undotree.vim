@@ -634,7 +634,7 @@ class Undotree extends Panel
             return
         endif
         # Target should be a normal buffer.
-        if (&bt == '' || &bt == 'acwrite') && &modifiable && (mode() == 'n')
+        if (&bt == '' || &bt == 'nofile') && &modifiable && (mode() == 'n')
             Exec(cmd)
             # Open folds so that the change being undone/redone is visible.
             if open_folds
@@ -879,7 +879,7 @@ class Undotree extends Panel
             return
         endif
         var emptybuf: bool
-        if (&bt != '' && &bt != 'acwrite') || !&modifiable || (mode() != 'n')
+        if (&bt != '' && &bt != 'nofile') || !&modifiable || (mode() != 'n')
             if this.targetBufnr == bufnr('%') && this.targetid == w:undotree_id
                 Log("undotree.Update() invalid buffer NOupdate")
                 return
