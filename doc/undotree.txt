@@ -39,8 +39,7 @@ CONTENTS                                                     *undotree-contents*
         3.19 undotree_DisabledBuftypes....... |undotree_DisabledBuftypes|
         3.20 undotree_UndoDir................ |undotree_UndoDir|
     4. Bugs ................................. |undotree-bugs|
-    5. Changelog ............................ |undotree-changelog|
-    6. License .............................. |undotree-license|
+    5. License .............................. |undotree-license|
 
 ==============================================================================
 1. Intro                                                        *undotree-intro*
@@ -515,58 +514,7 @@ Post any issue and feature request here:
 https://github.com/mao-yining/undotree.vim
 
 ==============================================================================
-5. Changelog                                              *undotree-changelog*
-
-Further changes will not be recorded. Please go to github page for more
-information.
-
-4.5 (2026-01-25)
-    - Convert into vim9script
-
-4.4 (2017-10-15)
-    - Autoload plugin functions
-
-4.3 (2013-02-18)
-    - Several fixes and enhancements.
-
-4.2 (2012-11-24)
-    - Fixed some small issue.
-
-4.1 (2012-09-05)
-    - Enhanced tree style.
-    - Multi-window switching support.
-
-4.0 (2012-08-30)
-    - Live updated highlight for changed text.
-    - Customizable key mappings.
-    - Fixed some minor bugs.
-
-3.1 (2012-08-25)
-    - Add saved status.
-    - Add relative timestamp.
-    - Add ability of clear undo history.
-
-3.0 (2012-08-24)
-    - Add diff panel.
-    - Performance improvement.
-
-2.2 (2012-08-21)
-    - Stable version.
-
-2.1 (2012-08-20)
-    - Fixed some annoying issues.
-
-2.0 (2012-08-19)
-    - Hotkey support.
-    - Handle undo levels.
-    - Auto refresh.
-    - And so on.
-
-1.0 (2012-08-18)
-    - Initial upload
-
-==============================================================================
-6. License                                                    *undotree-license*
+5. License                                                    *undotree-license*
 
 Copyright 2025 Ming Bai
 Copyright 2026 Mao-Yining
