@@ -440,18 +440,7 @@ abstract class Panel
         endif
     enddef
     def SetFocus()
-        var winnr = bufwinnr(this.bufname)
-        # already focused.
-        if winnr == winnr()
-            return
-        endif
-        if winnr == -1
-            echoerr "Fatal: window does not exist!"
-            return
-        endif
-        Log("SetFocus() winnr:" .. winnr .. " bufname:" .. this.bufname)
-        # wincmd would cause cursor outside window.
-        Exec_silent("norm! " .. winnr .. "\<c-w>\<c-w>")
+        win_gotoid(bufwinid(this.bufname))
     enddef
 
     def IsVisible(): bool
