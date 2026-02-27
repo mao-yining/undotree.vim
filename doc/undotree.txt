@@ -512,7 +512,7 @@ default undodir value), then the g:undotree_UndoDir value will be set to:
 4. Bugs                                                        *undotree-bugs*
 
 Post any issue and feature request here:
-https://github.com/mbbill/undotree/issues
+https://github.com/mao-yining/undotree.vim
 
 ==============================================================================
 5. Changelog                                              *undotree-changelog*
