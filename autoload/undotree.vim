@@ -638,7 +638,7 @@ class Undotree extends Panel
             return
         endif
         if seq == 0
-            this.ActionInTarget('norm 9999u')
+            this.ActionInTarget('norm! 9999u')
             return
         endif
         this.ActionInTarget('u ' .. this.asciimeta[index].seq)
