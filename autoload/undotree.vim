@@ -68,129 +68,85 @@ vim9script
 # |                            diff   |
 # |                                   |
 # +-----------------------------------+
-if !exists('g:undotree_WindowLayout')
-    g:undotree_WindowLayout = 1
-endif
+g:undotree_WindowLayout = get(g:, 'undotree_WindowLayout', 1)
 
 # e.g. using 'd' instead of 'days' to save some space.
-if !exists('g:undotree_ShortIndicators')
-    g:undotree_ShortIndicators = false
-endif
+g:undotree_ShortIndicators = get(g:, 'undotree_ShortIndicators', false)
 
 # undotree window width
-if !exists('g:undotree_SplitWidth')
-    if g:undotree_ShortIndicators
-        g:undotree_SplitWidth = 24
-    else
-        g:undotree_SplitWidth = 30
-    endif
+if g:undotree_ShortIndicators
+    g:undotree_SplitWidth = get(g:, 'undotree_SplitWidth', 24)
+else
+    g:undotree_SplitWidth = get(g:, 'undotree_SplitWidth', 30)
 endif
 
 # diff window height
-if !exists('g:undotree_DiffpanelHeight')
-    g:undotree_DiffpanelHeight = 10
-endif
+g:undotree_DiffpanelHeight = get(g:, 'undotree_DiffpanelHeight', 10)
 
 # auto open diff window
-if !exists('g:undotree_DiffAutoOpen')
-    g:undotree_DiffAutoOpen = true
-endif
+g:undotree_DiffAutoOpen = get(g:, 'undotree_DiffAutoOpen', true)
 
 # if set, let undotree window get focus after being opened, otherwise
 # focus will stay in current window.
-if !exists('g:undotree_SetFocusWhenToggle')
-    g:undotree_SetFocusWhenToggle = false
-endif
+g:undotree_SetFocusWhenToggle = get(g:, 'undotree_SetFocusWhenToggle', false)
 
 # tree node shape.
-if !exists('g:undotree_TreeNodeShape')
-    g:undotree_TreeNodeShape = '*'
-endif
+g:undotree_TreeNodeShape = get(g:, 'undotree_TreeNodeShape', '*')
 
 # tree vertical shape.
-if !exists('g:undotree_TreeVertShape')
-    g:undotree_TreeVertShape = '|'
-endif
+g:undotree_TreeVertShape = get(g:, 'undotree_TreeVertShape', '|')
 
 # tree split shape.
-if !exists('g:undotree_TreeSplitShape')
-    g:undotree_TreeSplitShape = '/'
-endif
+g:undotree_TreeSplitShape = get(g:, 'undotree_TreeSplitShape', '/')
 
 # tree return shape.
-if !exists('g:undotree_TreeReturnShape')
-    g:undotree_TreeReturnShape = '\'
-endif
+g:undotree_TreeReturnShape = get(g:, 'undotree_TreeReturnShape', '\')
 
-if !exists('g:undotree_DiffCommand')
-    g:undotree_DiffCommand = "diff"
-endif
+g:undotree_DiffCommand = get(g:, 'undotree_DiffCommand', "diff")
 
 # relative timestamp
-if !exists('g:undotree_RelativeTimestamp')
-    g:undotree_RelativeTimestamp = true
-endif
+g:undotree_RelativeTimestamp = get(g:, 'undotree_RelativeTimestamp', true)
 
 # Highlight changed text
-if !exists('g:undotree_HighlightChangedText')
-    g:undotree_HighlightChangedText = true
-endif
+g:undotree_HighlightChangedText = get(g:, 'undotree_HighlightChangedText', true)
 
 # Highlight changed text using signs in the gutter
-if !exists('g:undotree_HighlightChangedWithSign')
-    g:undotree_HighlightChangedWithSign = true
-endif
+g:undotree_HighlightChangedWithSign = get(g:, 'undotree_HighlightChangedWithSign', true)
 
 # Highlight linked syntax type.
 # You may chose your favorite through ":hi" command
-if !exists('g:undotree_HighlightSyntaxAdd')
-    g:undotree_HighlightSyntaxAdd = "DiffAdd"
-endif
-if !exists('g:undotree_HighlightSyntaxChange')
-    g:undotree_HighlightSyntaxChange = "DiffChange"
-endif
-if !exists('g:undotree_HighlightSyntaxDel')
-    g:undotree_HighlightSyntaxDel = "DiffDelete"
-endif
+
+g:undotree_HighlightSyntaxAdd = get(g:, 'undotree_HighlightSyntaxAdd', "DiffAdd")
+
+g:undotree_HighlightSyntaxChange = get(g:, 'undotree_HighlightSyntaxChange', "DiffChange")
+
+g:undotree_HighlightSyntaxDel = get(g:, 'undotree_HighlightSyntaxDel', "DiffDelete")
 
 # Signs to display in the gutter where the file has been modified
-if !exists('g:undotree_SignAdded')
-    g:undotree_SignAdded = "++"
-endif
-if !exists('g:undotree_SignChanged')
-    g:undotree_SignChanged = "~~"
-endif
-if !exists('g:undotree_SignDeleted')
-    g:undotree_SignDeleted = "--"
-endif
-if !exists('g:undotree_SignDeletedEnd')
-    g:undotree_SignDeletedEnd = "-v"
-endif
+
+g:undotree_SignAdded = get(g:, 'undotree_SignAdded', "++")
+
+g:undotree_SignChanged = get(g:, 'undotree_SignChanged', "~~")
+
+g:undotree_SignDeleted = get(g:, 'undotree_SignDeleted', "--")
+
+g:undotree_SignDeletedEnd = get(g:, 'undotree_SignDeletedEnd', "-v")
 
 # Show help line
-if !exists('g:undotree_HelpLine')
-    g:undotree_HelpLine = true
-endif
+g:undotree_HelpLine = get(g:, 'undotree_HelpLine', true)
 
 # Show cursorline
-if !exists('g:undotree_CursorLine')
-    g:undotree_CursorLine = true
-endif
+g:undotree_CursorLine = get(g:, 'undotree_CursorLine', true)
 
 # Set statusline
-if !exists('g:undotree_StatusLine')
-    g:undotree_StatusLine = true
-endif
+g:undotree_StatusLine = get(g:, 'undotree_StatusLine', true)
 
 # Ignored filetypes
-if !exists('g:undotree_DisabledFiletypes')
-    g:undotree_DisabledFiletypes = []
-endif
+g:undotree_DisabledFiletypes = get(g:, 'undotree_DisabledFiletypes', [])
 
 # Ignored buftypes
-if !exists('g:undotree_DisabledBuftypes')
-    g:undotree_DisabledBuftypes = ['terminal', 'prompt', 'quickfix', 'nofile']
-endif
+g:undotree_DisabledBuftypes = get(g:, 'undotree_DisabledBuftypes',
+    ['terminal', 'prompt', 'quickfix', 'nofile'])
 
 # Define the default persistence undo directory if not defined in vim/nvim
 # startup script.
